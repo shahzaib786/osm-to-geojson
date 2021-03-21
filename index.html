@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  
+	  <meta name="description" content="This software helps easy and fast to convert OSM file format to GeoJSON format automatically on the fly.">
+	  <meta name="author" content="Syed Shahzaib Ahmad">
+	  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
+
+    <script src='js/osmtogeojson.js'></script>
+    
+  </head>
+
+  <body>
+    <div class="geoLocation">
+
+    <script>
+        function callAPI()
+        {
+            let urlAPI = "https://www.openstreetmap.org/api/0.6/map?bbox=" + $("#min_lon").val() + "," + $("#min_lat").val() + "," + $("#max_lon").val() + "," + $("#max_lat").val();
+            $.get(urlAPI, function (data) {
+
+				if(data || !data === ""){		
+					 //parsing osm data to geojson data format
+					 var geoJson = osmtogeojson(data);
+					
+					 //converting the geoJSON data to string
+					 var geoString = JSON.stringify(geoJson, undefined, 4);
+					 document.getElementById('displayData').value = geoString;
+				}
+				else{
+					 document.getElementById('displayData').value = "Sorry no GeoJSON Features found. Please enter valid coordinates!";
+				}
+            });
+        }
+    </script>
+
+    <center><h1>Geolocation</h1>
+	 <h3>Sample coordinates to check result: 11.54, 48.14, 11.541, 48.141</h3>
+    
+      <form action="#" name="geodetails" id="geodetails">
+      
+        <input type="number" id="min_lon" name="min_lon" placeholder="Enter Minimum Longitude" value="" required /><br><br>
+        <input type="number" id="min_lat" name="min_lat" placeholder="Enter Minimum Latitude" value="" required /><br><br>
+        <input type="number" id="max_lon" name="max_lon" placeholder="Enter Maximum Longitude" value="" required /><br><br>
+        <input type="number" id="max_lat" name="max_lat" placeholder="Enter Maximum Latitude" value="" required /><br><br>
+		<input type="reset" value="Reset">
+        <button type="submit">Submit</button><br><br>
+      </form>
+		<h3>GeoJSON Features:</h3>	
+        <textarea id="displayData" cols=100 rows=50></textarea>
+    </center>
+
+    <script>
+        $(function() {
+          $("form[name='geodetails']").validate({
+            
+			//Checking rules/conditions for lat and lon to validate input data
+			rules: {
+              min_lon: { required:true, range: [-180, 180] },
+              min_lat: { required:true, range: [-90, 90] },
+              max_lon: { required:true, range: [-180, 180] },
+              max_lat: { required:true, range: [-90, 90] },
+            },
+            messages: {
+              min_lon: "&nbsp;Please enter min_lon -180 ... 180",
+              min_lat: "&nbsp;Please enter min_lat -90 ... 90",
+              max_lon: "&nbsp;Please enter max_lon -180 ... 180",
+              max_lat: "&nbsp;Please enter max_lat -90 ... 90"
+
+            },
+            
+            submitHandler: function(form) {
+              callAPI();
+            }
+          });
+        });
+    </script>
+   </div>
+  </body>
+</html>
